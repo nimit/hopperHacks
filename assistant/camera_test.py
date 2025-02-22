@@ -6,7 +6,7 @@ logging.getLogger("ultralytics").setLevel(logging.ERROR)
 
 from utils import *
 
-def main(save_video=False, duration=10, fps=6, camera=0):
+def main(save_video=False, duration=10, fps=25, camera=0):
     cap = cv2.VideoCapture(camera)
     if not cap.isOpened():
         print("Error: Could not open camera.")
@@ -17,6 +17,8 @@ def main(save_video=False, duration=10, fps=6, camera=0):
     frame_duration = 1.0 / fps
     video_writer = initialize_video_writer(save_video=save_video)
 
+    last_full_pipeline_run = 0
+
     frame_count = 0
     while frame_count < target_frame_count:
         start_time = time()
@@ -26,32 +28,25 @@ def main(save_video=False, duration=10, fps=6, camera=0):
             break
 
         frame_resized = cv2.resize(frame, (640, 480))
-        
+
         # Process frames
         original_frame = frame_resized.copy()
         start = time()
-        detection_frame = run_object_detection(frame_resized)
+        detection_frame, _ = detect_objects(frame_resized)
         print("object detection took", time() - start)
-        start = time()
-        depth_frame = run_depth_estimation(frame_resized, overlay_detection=True)
-        print("depth estimation took", time() - start)
-        start = time()
-        seg_frame = run_semantic_segmentation(frame_resized, prompt="ground",overlay_original=True)
-        print("semantic segmentation took", time() - start)
 
-        # # Layout for 2x2 Grid
-        top_row = np.hstack((original_frame, detection_frame))
-        bottom_row = np.hstack((depth_frame, seg_frame))
-        composite_frame = np.vstack((top_row, bottom_row))
-
-        if save_video and video_writer:
-            video_writer.write(composite_frame)
+        if time() - last_full_pipeline_run > 1:
+            start = time()
+            composite_frame = run_pipeline(frame_resized)
+            print("full pipeline took", time() - start)
+            cv2.imshow("Object Detection", composite_frame)
 
         # Display each window and composite
         cv2.imshow("Original Frame", original_frame)
-        cv2.imshow("Object Detection", detection_frame)
-        cv2.imshow("Depth Map with Detection", depth_frame)
-        cv2.imshow("Original with Semantic Segmentation", seg_frame)
+        cv2.imshow("Detection Frame", detection_frame)
+
+        if save_video and video_writer:
+            video_writer.write(composite_frame)
 
         frame_count += 1
         elapsed_time = time() - start_time
@@ -67,4 +62,4 @@ def main(save_video=False, duration=10, fps=6, camera=0):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main(save_video=False, duration=1000, fps=7, camera=1)
+    main(save_video=False, duration=1000, camera=1)

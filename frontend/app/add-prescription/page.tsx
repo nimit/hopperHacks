@@ -11,6 +11,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useUser } from '../context/UserContext';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+console.log('API Key : ', process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 const toBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {

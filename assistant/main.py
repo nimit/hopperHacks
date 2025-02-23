@@ -2,25 +2,27 @@ import time
 import cv2
 import numpy as np
 import sys
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-
-# file imports
 from utils import *
 from whisper import get_target_object
 from path_finder import next_instruction
 import time
 from constants import STRINGS
+import warnings
 
+warnings.filterwarnings("ignore", category=FutureWarning)
 device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
 RECORD_DURATION = 5
 
 def start_find():
     depth_colored = None
+    medicine_bottle_recorder = None
     speak(STRINGS["introduction"])
     loc_data, lang = get_target_object(record_duration=RECORD_DURATION)
     if loc_data and loc_data.object:
         print("Object to detect:", loc_data.object)
+        if loc_data.object == "medicine":
+            loc_data.object = "bottle"
+            medicine_bottle_recorder = MedicineBottleRecorder()
     else:
         print("No object found in the transcription.")
         speak(loc_data.get("transcript_error"), lang)
@@ -102,7 +104,6 @@ def start_find():
         print("OBSTACLES", obstacles)
 
         for obstacle_obj in obstacles:
-            # print("Getting obstacle mask for:", obsta)
             obstacle_mask = get_object_mask(frame, prompt=obstacle_obj)
             obstacle_contours, _ = cv2.findContours(obstacle_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -112,7 +113,6 @@ def start_find():
                 obstacle_depth_values = depth_array[y:y+h, x:x+w]
                 obstacle_average_depth = np.mean(obstacle_depth_values)
 
-                # obstacle_color = (random(), random(), random()) * 255
                 obstacle_color = (0, 0, 0)
                 cv2.rectangle(depth_colored, (x, y), (x + w, y + h), obstacle_color, 2)
                 cv2.putText(depth_colored, f"{obstacle_obj}: Avg Depth {obstacle_average_depth:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, obstacle_color, 1)
@@ -140,7 +140,6 @@ def start_find():
         else:
             if area >= AREA_THRESHOLD * initial_area[target_obj] and average_depth >= initial_depth[target_obj] + DEPTH_THRESHOLD and location=="middle of screen":
                 speak(loc_data.get("reached_object"), lang)
-                print(f"At the {target_obj}.")
                 break
         
         interval_time += time.time() - start_time
@@ -152,6 +151,16 @@ def start_find():
             if (bool_et): time.sleep(0.5)
             interval_time = 0
 
+    if medicine_bottle_recorder:
+        if not medicine_bottle_recorder.found_bottle:
+            time.sleep(1)
+            speak(loc_data.get("pick_up_medicine_bottle"), lang)
+            time.sleep(4)
+            medicine_bottle_recorder.found_bottle = True
+        else:
+            while medicine_bottle_recorder.index < 3:
+                medicine_bottle_recorder.save_next(frame)
+    print(f"At the {target_obj}.")
 
     cap.release()
     cv2.destroyAllWindows()

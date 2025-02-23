@@ -1,3 +1,5 @@
+MEDICINE_IMAGES_DIR = "medicine-images/"
+
 STRINGS = {
     # First 2 will always be in English
     #*
@@ -14,9 +16,12 @@ STRINGS = {
     "move_left": "Turn left.",
     "move_right": "Turn right.",
     "move_back": "Lost the {{object}}. Please move back.",
+    
+    "pick_up_medicine_bottle": "Please pick up the medicine bottle and rotate it in your hands to confirm.",
 }
 
 CLASSES = {
+    "medicine": "medicine",
     "person": "person",
     "bicycle": "bicycle",
     "car": "car",

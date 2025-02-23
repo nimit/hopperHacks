@@ -1,11 +1,12 @@
 import os
-from google import genai
+import google.generativeai as genai
 from load_dotenv import load_dotenv
 from PIL import Image
+from constants import MEDICINE_IMAGES_DIR
 
-dir_path = "medicine-images/"
+dir_path = MEDICINE_IMAGES_DIR
 
-def get_med_name(user_medicines=[]):
+def get_med_name(user_medicines=["Vitamin C", "Multi vitamins"]):
 
     images = []
     for img_path in os.listdir(dir_path):

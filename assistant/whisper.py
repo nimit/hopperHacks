@@ -34,7 +34,7 @@ def transcribe_audio(audio_data):
 
 def get_target_object(record_duration):
     #* TEST
-    return LocalizedData("cup", CLASSES, STRINGS), "en"
+    return LocalizedData("medicine", CLASSES, STRINGS), "en"
 
     audio_data = record_audio(record_duration)
     speak(STRINGS['wait_while_load'])

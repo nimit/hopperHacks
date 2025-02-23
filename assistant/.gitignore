@@ -1,5 +1,7 @@
 # Other files
 archive/
+*.mp3
+*.jpg
 
 # Models
 *.pt

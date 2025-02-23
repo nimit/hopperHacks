@@ -9,6 +9,7 @@ import os
 import logging
 from gtts import gTTS
 from playsound import playsound
+from constants import MEDICINE_IMAGES_DIR
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
 device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
@@ -145,7 +146,6 @@ def run_pipeline(frame):
     composite_frame = np.vstack((top_row, bottom_row))
     return composite_frame
 
-
 def initialize_video_writer(save_video=False, output_dir="visualization_output", fps=6, resolution=(1280, 960)):
     if save_video:
         os.makedirs(output_dir, exist_ok=True)
@@ -161,3 +161,12 @@ def get_object_mask(frame, prompt):
     mask = torch.sigmoid(seg_outputs.logits.unsqueeze(1)[0][0]).cpu().numpy()
     binary_mask = (cv2.resize(mask, (frame.shape[1], frame.shape[0])) > 0.5).astype(np.uint8) * 255
     return binary_mask
+
+class MedicineBottleRecorder:
+    def __init__(self):
+        self.found_bottle = False
+        self.index = 1
+
+    def save_next(self, frame):
+        cv2.imwrite(f'{MEDICINE_IMAGES_DIR}/med_bottle{self.index}.jpg', frame)
+        self.index += 1

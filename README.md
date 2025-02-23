@@ -1,3 +1,3 @@
 # HopperHacks X Submission
 
-Deployed on Vercel
+Deployed on Vercel v2

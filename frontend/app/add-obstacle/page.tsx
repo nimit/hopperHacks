@@ -2,10 +2,11 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useUser } from '../context/UserContext';
 
 // Function to convert a file to Base64
 const toBase64 = (file: File): Promise<string> => {
@@ -27,6 +28,13 @@ export default function AddObstacle() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const { user } = useUser();
+  useEffect(() => {
+    if (!user) {
+      window.location.href = '/auth';
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

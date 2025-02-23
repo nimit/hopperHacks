@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Upload, Check, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useEffect } from 'react';
 
 import { useUser } from '../context/UserContext';
 
@@ -50,6 +51,13 @@ export default function AddPrescription() {
   const [medicines, setMedicines] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+
+  useEffect(() => {
+    if (!user) {
+      // Redirect to login page if user is not logged in
+      window.location.href = '/auth';
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

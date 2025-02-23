@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 
 import { useState } from "react"
 
@@ -21,6 +22,16 @@ export default function LoginSignup() {
       className="min-h-screen bg-cover bg-center flex items-center justify-center"
       style={{ backgroundImage: "url('/pirate-hideout-bg.jpg')" }}
     >
+      {/* Background layer */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/treasure-map-bg.jpg"
+          alt="Treasure map background"
+          layout="fill"
+          objectFit="cover"
+          style={{ opacity: 0.2 }}
+        />
+      </div>
       <div className="bg-wood p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-3xl font-bold text-center text-amber-900 mb-6 pirate-font">
           {isLogin ? "Login" : "Sign Up"}

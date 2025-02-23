@@ -84,26 +84,15 @@
   font-family: "PirateFont", cursive;
 }
 
-.bg-wood {
-  background-image: url("/wood-texture.jpg");
-  background-size: cover;
-}
-
-.bg-parchment {
-  background-image: url("/parchment-texture.jpg");
-  background-size: cover;
-}
-
 .btn-pirate {
-  @apply bg-amber-600 text-white font-bold py-2 px-4 rounded;
-  @apply hover:bg-amber-700 transition-colors;
+  @apply bg-brown text-parchment-light font-bold py-2 px-4 rounded;
+  @apply hover:bg-brown-dark transition-colors;
   @apply shadow-md;
-  background-image: url("/treasure-chest.png");
+  background-image: url("/wood-texture.jpg");
   background-size: cover;
   background-position: center;
 }
 
-/* New styles */
 .pirate-border {
   border: 8px solid transparent;
   border-image: url("/rope-border.png") 30 stretch;
@@ -173,7 +162,7 @@
   right: -8px;
   top: -8px;
   bottom: -8px;
-  border: 2px solid theme("colors.amber.600");
+  border: 2px solid theme("colors.brown.DEFAULT");
   border-radius: 50%;
   animation: pulseRing 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
@@ -190,22 +179,36 @@
   top: 0;
   bottom: 0;
   border-radius: 50%;
-  background-color: theme("colors.amber.600");
+  background-color: theme("colors.brown.DEFAULT");
   animation: pulseDot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
 }
 
 @keyframes float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-20px) rotate(5deg);
   }
 }
 
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes sail {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(30px) translateY(-30px);
+  }
+}
+
+.animate-sail {
+  animation: sail 15s ease-in-out infinite;
 }
 
 .drop-shadow-lg {

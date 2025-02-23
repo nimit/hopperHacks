@@ -37,6 +37,7 @@ export default function AuthPage() {
       if (response.ok) {
         setUser(data.user);
         router.push('/');
+        localStorage.setItem('user', JSON.stringify(data.user));
       } else {
         alert(data.message);
       }
@@ -54,6 +55,7 @@ export default function AuthPage() {
       if (response.ok) {
         setUser(data.user);
         router.push('/');
+        localStorage.setItem('user', JSON.stringify(data.user));
       } else {
         alert(data.message);
       }

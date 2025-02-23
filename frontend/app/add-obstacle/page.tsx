@@ -1,52 +1,116 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import { AlertTriangle, Info } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from 'react';
+import { AlertTriangle, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+
+// Function to convert a file to Base64
+const toBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 export default function AddObstacle() {
-  const [obstacleType, setObstacleType] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState({ lat: 0, lng: 0 })
-  const [photo, setPhoto] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const router = useRouter();
+  const [obstacleType, setObstacleType] = useState('');
+  const [description, setDescription] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!obstacleType || !description || (location.lat === 0 && location.lng === 0)) {
-      setError("Ye need to fill all the required fields, ye scurvy dog!")
-      return
+    e.preventDefault();
+    if (
+      !obstacleType ||
+      !description ||
+      (latitude === '' && longitude === '')
+    ) {
+      setError('Ye need to fill all the required fields, ye scurvy dog!');
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
-    // Simulating API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // Prepare the data to be sent to the API
+    const obstacleData = {
+      type: obstacleType,
+      description,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      photo: photo ? await toBase64(photo) : null,
+    };
 
-    setIsLoading(false)
-    setIsSuccess(true)
-    // Reset form
-    setObstacleType("")
-    setDescription("")
-    setLocation({ lat: 0, lng: 0 })
-    setPhoto(null)
-  }
+    // Make the API call to add the obstacle
+    const response = await fetch('/api/add-obstacle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(obstacleData),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      setIsSuccess(true);
+      // Reset form
+      setObstacleType('');
+      setDescription('');
+      setLatitude('');
+      setLongitude('');
+      setPhoto(null);
+      router.push('/');
+    } else {
+      setError(data.message);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude.toString());
+          setLongitude(position.coords.longitude.toString());
+        },
+        (error) => {
+          alert('Unable to retrieve your location. Please enter it manually.');
+          console.error(error);
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-parchment py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold text-brown mb-8 pirate-font text-center">Report an Obstacle</h1>
+        <h1 className="text-4xl font-bold text-brown mb-8 pirate-font text-center">
+          Report an Obstacle
+        </h1>
 
         <div className="bg-parchment-light p-8 rounded-lg shadow-lg mb-8">
-          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">Mark Yer Danger on the Map</h2>
+          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">
+            Mark Yer Danger on the Map
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="obstacleType" className="block text-brown font-bold mb-2">
+              <label
+                htmlFor="obstacleType"
+                className="block text-brown font-bold mb-2"
+              >
                 Type of Obstacle
               </label>
               <select
@@ -65,7 +129,10 @@ export default function AddObstacle() {
               </select>
             </div>
             <div>
-              <label htmlFor="description" className="block text-brown font-bold mb-2">
+              <label
+                htmlFor="description"
+                className="block text-brown font-bold mb-2"
+              >
                 Description
               </label>
               <textarea
@@ -79,15 +146,18 @@ export default function AddObstacle() {
               ></textarea>
             </div>
             <div>
-              <label htmlFor="location" className="block text-brown font-bold mb-2">
+              <label
+                htmlFor="location"
+                className="block text-brown font-bold mb-2"
+              >
                 Location
               </label>
               <div className="flex space-x-2">
                 <input
                   type="number"
                   placeholder="Latitude"
-                  value={location.lat || ""}
-                  onChange={(e) => setLocation((prev) => ({ ...prev, lat: Number.parseFloat(e.target.value) }))}
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
                   className="w-1/2 p-2 rounded bg-parchment text-brown border border-brown"
                   step="any"
                   required
@@ -95,8 +165,8 @@ export default function AddObstacle() {
                 <input
                   type="number"
                   placeholder="Longitude"
-                  value={location.lng || ""}
-                  onChange={(e) => setLocation((prev) => ({ ...prev, lng: Number.parseFloat(e.target.value) }))}
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
                   className="w-1/2 p-2 rounded bg-parchment text-brown border border-brown"
                   step="any"
                   required
@@ -104,19 +174,28 @@ export default function AddObstacle() {
               </div>
             </div>
             <div>
-              <label htmlFor="photo" className="block text-brown font-bold mb-2">
+              <label
+                htmlFor="photo"
+                className="block text-brown font-bold mb-2"
+              >
                 Photo (optional)
               </label>
               <input
                 type="file"
                 id="photo"
                 accept="image/*"
-                onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
+                onChange={(e) =>
+                  setPhoto(e.target.files ? e.target.files[0] : null)
+                }
                 className="w-full p-2 rounded bg-parchment text-brown border border-brown"
               />
             </div>
-            <Button type="submit" className="w-full btn-pirate" disabled={isLoading}>
-              {isLoading ? "Marking the map..." : "Report Obstacle"}
+            <Button
+              type="submit"
+              className="w-full btn-pirate"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Marking the map...' : 'Report Obstacle'}
             </Button>
           </form>
           {error && (
@@ -134,27 +213,36 @@ export default function AddObstacle() {
         </div>
 
         <div className="bg-brown-dark p-6 rounded-lg shadow-lg mb-8">
-          <h3 className="text-3xl font-bold text-parchment mb-4 pirate-font">Map Preview</h3>
+          <h3 className="text-3xl font-bold text-parchment mb-4 pirate-font">
+            Map Preview
+          </h3>
           <div className="bg-parchment h-64 rounded-lg flex items-center justify-center">
             <p className="text-brown">Map preview will be shown here</p>
           </div>
         </div>
 
         <div className="bg-parchment-light p-6 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">Why Report Obstacles?</h2>
+          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">
+            Why Report Obstacles?
+          </h2>
           <div className="space-y-4 text-brown-dark">
-            <p>Reporting obstacles be crucial for the safety of all seafarers in our community. Here's why:</p>
+            <p>
+              Reporting obstacles be crucial for the safety of all seafarers in
+              our community. Here's why:
+            </p>
             <ul className="list-disc list-inside space-y-2">
               <li>Ye help keep yer fellow pirates safe from harm</li>
               <li>Ye contribute to our ever-growing map of dangers</li>
               <li>Ye earn respect and trust among the pirate community</li>
               <li>Ye might save a life or a ship from peril</li>
             </ul>
-            <p>Remember, a informed pirate be a safe pirate. Share yer knowledge and keep our waters safer for all!</p>
+            <p>
+              Remember, a informed pirate be a safe pirate. Share yer knowledge
+              and keep our waters safer for all!
+            </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

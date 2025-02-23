@@ -10,6 +10,7 @@ from constants import STRINGS, CLASSES
 warnings.filterwarnings("ignore", category=FutureWarning)
 whisper = pipeline("automatic-speech-recognition", model="openai/whisper-medium", torch_dtype=torch.float32, device="cpu", use_fast=True)
 sample_rate = 16000
+RECORD_DURATION = 5
 
 def record_audio(record_duration):
     print("Recording... Please speak.")
@@ -30,13 +31,13 @@ def transcribe_audio(audio_data):
     except Exception as err:
         lang = "en"
         print("Error while detecting language", err)
-    return extract_object(transcribed_text, lang, STRINGS), str(lang)
+    return extract_object(transcribed_text, lang, STRINGS)
 
-def get_target_object(record_duration):
+def get_target_object():
     #* TEST
-    return LocalizedData("medicine", CLASSES, STRINGS), "en"
+    return LocalizedData("en", "medicine", CLASSES, STRINGS)
 
-    audio_data = record_audio(record_duration)
+    audio_data = record_audio(RECORD_DURATION)
     speak(STRINGS['wait_while_load'])
-    loc_data, language = transcribe_audio(audio_data)
-    return loc_data, language
+    loc_data = transcribe_audio(audio_data)
+    return loc_data

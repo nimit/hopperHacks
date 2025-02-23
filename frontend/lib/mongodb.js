@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const uri = process.env.MONGO_URI; // Store your connection string in an environment variable
-console.log("MongoDB URI:", uri); // Log the connection string for debugging
 
 const options = {
     useNewUrlParser: true,

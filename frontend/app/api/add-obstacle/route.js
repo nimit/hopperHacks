@@ -30,3 +30,14 @@ export async function POST(request) {
 
     return new Response(JSON.stringify({ message: 'Obstacle added successfully', obstacle: newObstacle }), { status: 201 });
 }
+
+export async function GET() {
+    // Connect to the database
+    const client = await clientPromise;
+    const db = client.db('your-database-name'); // Replace with your database name
+
+    // Fetch all obstacles from the database
+    const obstacles = await db.collection('obstacles').find({}).toArray();
+
+    return new Response(JSON.stringify(obstacles), { status: 200 });
+}

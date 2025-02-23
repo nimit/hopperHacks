@@ -129,10 +129,10 @@ export default function AddObstacle() {
                 required
               >
                 <option value="">Select an obstacle type</option>
-                <option value="reef">Treacherous Reef</option>
-                <option value="whirlpool">Whirlpool</option>
-                <option value="seamonster">Sea Monster</option>
-                <option value="pirates">Rival Pirates</option>
+                <option value="uneven-surface">Uneven Surface</option>
+                <option value="obstructed-path">Obstructed Path</option>
+                <option value="missing-signage">Missing Signage</option>
+                <option value="poor-lighting">Poor Lighting</option>
                 <option value="other">Other</option>
               </select>
             </div>
@@ -224,8 +224,22 @@ export default function AddObstacle() {
           <h3 className="text-3xl font-bold text-parchment mb-4 pirate-font">
             Map Preview
           </h3>
-          <div className="bg-parchment h-64 rounded-lg flex items-center justify-center">
-            <p className="text-brown">Map preview will be shown here</p>
+          <div className="relative bg-parchment h-64 w-full rounded-lg overflow-hidden">
+            {/* Map Iframe */}
+            <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 'none', opacity: '0.5' }}
+              referrerPolicy="no-referrer-when-downgrade"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1000%2C51.5000%2C-0.0900%2C51.5100&layer=mapnik"
+            ></iframe>
+            {/* "Coming Soon" Overlay */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-50 p-4 rounded-lg">
+              <p className="text-3xl font-bold text-center text-brown">
+                {' '}
+                Coming Soon
+              </p>
+            </div>
           </div>
         </div>
 

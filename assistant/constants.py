@@ -1,8 +1,11 @@
+AUDIO_PATH = "say.mp3"
+MEDICINE_IMAGES_DIR = "medicine-images/"
+
 STRINGS = {
     # First 2 will always be in English
     #*
-    "introduction": ". Hey! How can I help you?",
-    "wait_while_load": "Please wait while we setup SpotiFind for you. Thank you for your patience.",
+    "introduction": ". Ahoy! How may I be o' service to ye?",
+    "wait_while_load": "Hold yer course while we be settin' up SpotiFind for ye. Thank ye for yer patience, matey.",
     #*
     "transcript_error": "Sorry, could not figure out what you wanted to find.",
     "transcript_success": "Perfect! Let's go find your '{{object}}'.",
@@ -14,9 +17,28 @@ STRINGS = {
     "move_left": "Turn left.",
     "move_right": "Turn right.",
     "move_back": "Lost the {{object}}. Please move back.",
+    
+    "pick_up_medicine_bottle": "Please pick up the medicine bottle",
+    "rotate_bottle_in_hands": "Rotate the bottle in your hands",
+}
+
+PIRATE_STRINGS_EN = {
+    "transcript_error": "Shiver me timbers, could not make head nor tail o' what ye be seekin'.",
+    "transcript_success": "Avast! We'll be findin' yer '{{object}}', aye?",
+    "object_not_found": "The '{{object}}' be nowhere in sight. Best be movin' about, ye landlubber!",
+    "reached_object": "Ye've reached the '{{object}}'. Now, use yer hands to get a feel o' yer surroundings, slowly now!",
+    "move_left_obstacle": "The '{{object}}' be straight ahead! Turn to port and sail onward.",
+    "move_right_obstacle": "The '{{object}}' be straight ahead! Turn to starboard and sail onward.",
+    "move_forward": "Set sail and move forward, ye scallywag!",
+    "move_left": "Turn to port, ye bilge rat!",
+    "move_right": "Turn to starboard, ye swab!",
+    "move_back": "Lost the '{{object}}', we have. Best be backin' up, ye scurvy dog!",
+    "pick_up_medicine_bottle": "Seize the medicine bottle, ye salty sea dog!",
+    "rotate_bottle_in_hands": "Spin the bottle in yer grasp, aye!"
 }
 
 CLASSES = {
+    "medicine": "medicine",
     "person": "person",
     "bicycle": "bicycle",
     "car": "car",

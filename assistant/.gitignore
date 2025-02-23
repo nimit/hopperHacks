@@ -1,3 +1,6 @@
+# Other files
+archive/
+
 # Models
 *.pt
 

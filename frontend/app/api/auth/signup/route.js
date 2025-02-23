@@ -7,7 +7,7 @@ export async function POST(request) {
     console.log("Received signup request:", { name, email });
 
     const client = await clientPromise;
-    const db = client.db('your-database-name'); // Replace with your database name
+    const db = client.db('HopperHack'); // Replace with your database name
 
     // Check if the user already exists
     const existingUser = await db.collection('users').findOne({ email });

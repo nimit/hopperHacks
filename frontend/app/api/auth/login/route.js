@@ -10,7 +10,7 @@ export async function GET(request) {
     console.log("Received login request:", { email });
 
     const client = await clientPromise;
-    const db = client.db('your-database-name'); // Replace with your database name
+    const db = client.db('HopperHack'); // Replace with your database name
 
     // Find the user by email
     const user = await db.collection('users').findOne({ email });

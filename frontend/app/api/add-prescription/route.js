@@ -11,7 +11,7 @@ export async function POST(request) {
 
     // Connect to the database
     const client = await clientPromise;
-    const db = client.db('your-database-name'); // Replace with your database name
+    const db = client.db('HopperHack'); // Replace with your database name
 
     // Create the prescription object
     const newPrescription = {
@@ -21,7 +21,7 @@ export async function POST(request) {
     };
 
     // Insert the new prescription into the database
-    await db.collection('prescriptions').insertOne(newPrescription);
+    await db.collection('Prescription').insertOne(newPrescription);
     console.log("New prescription added:", newPrescription);
 
     return new NextResponse(JSON.stringify({ message: 'Prescription added successfully', prescription: newPrescription }), { status: 201 });

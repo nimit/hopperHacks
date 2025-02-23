@@ -11,7 +11,7 @@ export async function POST(request) {
 
     // Connect to the database
     const client = await clientPromise;
-    const db = client.db('your-database-name'); // Replace with your database name
+    const db = client.db('HopperHack'); // Replace with your database name
 
     // Create the obstacle object
     const newObstacle = {
@@ -26,7 +26,7 @@ export async function POST(request) {
     };
 
     // Insert the new obstacle into the database
-    await db.collection('obstacles').insertOne(newObstacle);
+    await db.collection('Obstacle').insertOne(newObstacle);
     console.log("New obstacle added:", newObstacle);
 
     return new NextResponse(JSON.stringify({ message: 'Obstacle added successfully', obstacle: newObstacle }), { status: 201 });
@@ -35,10 +35,10 @@ export async function POST(request) {
 export async function GET() {
     // Connect to the database
     const client = await clientPromise;
-    const db = client.db('your-database-name'); // Replace with your database name
+    const db = client.db('HopperHack'); // Replace with your database name
 
     // Fetch all obstacles from the database
-    const obstacles = await db.collection('obstacles').find({}).toArray();
+    const obstacles = await db.collection('Obstacle').find({}).toArray();
 
     return new NextResponse(JSON.stringify(obstacles), { status: 200 });
 }

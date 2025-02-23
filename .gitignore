@@ -1,3 +1,10 @@
+.env
+marones-logo-font.zip
+SpotiFind Rx Logo.webp
+
+# Next.js
+frontend/.next/
+
 # Logs
 logs
 *.log

@@ -1,5 +1,6 @@
-import clientPromise from '../../../../lib/mongodb';
+import clientPromise from '@/lib/mongodb';
 import bcrypt from 'bcrypt';
+import { NextResponse } from 'next/server';
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
@@ -15,16 +16,16 @@ export async function GET(request) {
     const user = await db.collection('users').findOne({ email });
     if (!user) {
         console.log("User not found:", email);
-        return new Response(JSON.stringify({ message: 'User not found' }), { status: 404 });
+        return new NextResponse(JSON.stringify({ message: 'User not found' }), { status: 404 });
     }
 
     // Check if the password is valid
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
         console.log("Invalid password for user:", email);
-        return new Response(JSON.stringify({ message: 'Invalid password' }), { status: 401 });
+        return new NextResponse(JSON.stringify({ message: 'Invalid password' }), { status: 401 });
     }
 
     console.log("Login successful for user:", user);
-    return new Response(JSON.stringify({ message: 'Login successful', user }), { status: 200 });
+    return new NextResponse(JSON.stringify({ message: 'Login successful', user }), { status: 200 });
 } 

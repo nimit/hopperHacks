@@ -1,4 +1,5 @@
-import clientPromise from '../../../lib/mongodb';// Reference the existing MongoDB connection
+import clientPromise from '@/lib/mongodb';// Reference the existing MongoDB connection
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     const { imageUrl, medicines } = await request.json();
@@ -23,7 +24,7 @@ export async function POST(request) {
     await db.collection('prescriptions').insertOne(newPrescription);
     console.log("New prescription added:", newPrescription);
 
-    return new Response(JSON.stringify({ message: 'Prescription added successfully', prescription: newPrescription }), { status: 201 });
+    return new NextResponse(JSON.stringify({ message: 'Prescription added successfully', prescription: newPrescription }), { status: 201 });
 }
 
 

@@ -1,5 +1,6 @@
-import clientPromise from '../../../../lib/mongodb';
+import clientPromise from '@/lib/mongodb';
 import bcrypt from 'bcrypt';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     const { name, email, password } = await request.json();
@@ -12,7 +13,7 @@ export async function POST(request) {
     const existingUser = await db.collection('users').findOne({ email });
     if (existingUser) {
         console.log("User already exists:", email);
-        return new Response(JSON.stringify({ message: 'User already exists' }), { status: 409 });
+        return new NextResponse(JSON.stringify({ message: 'User already exists' }), { status: 409 });
     }
 
     // Hash the password and create a new user
@@ -21,5 +22,5 @@ export async function POST(request) {
     await db.collection('users').insertOne(newUser);
     console.log("User saved to database:", newUser);
 
-    return new Response(JSON.stringify({ message: 'Signup successful', user: newUser }), { status: 201 });
+    return new NextResponse(JSON.stringify({ message: 'Signup successful', user: newUser }), { status: 201 });
 } 

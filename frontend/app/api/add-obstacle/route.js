@@ -1,11 +1,12 @@
-import clientPromise from '../../../lib/mongodb'; // Reference the existing MongoDB connection
+import clientPromise from '@/lib/mongodb'; // Reference the existing MongoDB connection
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     const { type, description, latitude, longitude, photo } = await request.json();
 
     // Validate required fields
     if (!type || !description || !latitude || !longitude) {
-        return new Response(JSON.stringify({ message: 'Type, description, latitude, and longitude are required.' }), { status: 400 });
+        return new NextResponse(JSON.stringify({ message: 'Type, description, latitude, and longitude are required.' }), { status: 400 });
     }
 
     // Connect to the database
@@ -28,7 +29,7 @@ export async function POST(request) {
     await db.collection('obstacles').insertOne(newObstacle);
     console.log("New obstacle added:", newObstacle);
 
-    return new Response(JSON.stringify({ message: 'Obstacle added successfully', obstacle: newObstacle }), { status: 201 });
+    return new NextResponse(JSON.stringify({ message: 'Obstacle added successfully', obstacle: newObstacle }), { status: 201 });
 }
 
 export async function GET() {
@@ -39,5 +40,5 @@ export async function GET() {
     // Fetch all obstacles from the database
     const obstacles = await db.collection('obstacles').find({}).toArray();
 
-    return new Response(JSON.stringify(obstacles), { status: 200 });
+    return new NextResponse(JSON.stringify(obstacles), { status: 200 });
 }

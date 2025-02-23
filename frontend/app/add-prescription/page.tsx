@@ -85,7 +85,8 @@ export default function AddPrescription() {
             {
               "medicines": ["Medicine1", "Medicine2", "Medicine3"]
             }
-
+            If the Medicine names contains the type of medication it is, also include that in the response in the medicine name itself.
+            An example of this would be "Moov Pain relief spray" or "multi vitamin tablets".
             If the image does not contain a prescription or if you 
             are unable to identify any medicine names, return the 
             following response:
@@ -174,7 +175,7 @@ export default function AddPrescription() {
 
         {isLoading && (
           <div className="text-center">
-            <Image src="/spinning-compass.gif" alt="Loading" width={64} height={64} className="mx-auto" />
+            {/* <Image src="/spinning-compass.gif" alt="Loading" width={64} height={64} className="mx-auto" /> */}
             <p className="text-brown mt-2">Decoding the prescription scroll...</p>
           </div>
         )}

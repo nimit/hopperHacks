@@ -9,6 +9,8 @@ import os
 import logging
 from gtts import gTTS
 from playsound import playsound
+from constants import MEDICINE_IMAGES_DIR, AUDIO_PATH
+from localized_object_extractor import LocalizedData
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
 device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
@@ -20,24 +22,18 @@ yolo_model = YOLO('yolo12n.pt')
 def speak(text, lang="en"):
     print("Will speak:", text)
     tts = gTTS(text=text, lang=lang)
-    path = 'say.mp3'
+    path = AUDIO_PATH
     if os.path.exists(path):
         os.remove(path)
     tts.save(path)
     playsound(path)
-    
-    # audio_fp = BytesIO()
-    # tts.write_to_fp(audio_fp)
-    # audio_fp.seek(0)
-    # audio = AudioSegment.from_mp3(audio_fp)
-    # play(audio)
 
-    # tts.save('say.mp3')
-    # wave_obj = sa.WaveObject.from_wave_file(filename)
-    # play_obj = wave_obj.play()
-    # play_obj.wait_done()
-    # speaker = wincom.Dispatch("SAPI.SpVoice")
-    # speaker.Speak(sanitized_text)
+class LocalizedSpeaker:
+    def __init__(self, loc_data: LocalizedData):
+        self.loc_data = loc_data
+
+    def speak(self, key: str):
+        speak(self.loc_data.get(key), self.loc_data.lang)
 
 def run_semantic_segmentation(frame, prompt="chair", overlay_original=False):
     pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -145,7 +141,6 @@ def run_pipeline(frame):
     composite_frame = np.vstack((top_row, bottom_row))
     return composite_frame
 
-
 def initialize_video_writer(save_video=False, output_dir="visualization_output", fps=6, resolution=(1280, 960)):
     if save_video:
         os.makedirs(output_dir, exist_ok=True)
@@ -161,3 +156,14 @@ def get_object_mask(frame, prompt):
     mask = torch.sigmoid(seg_outputs.logits.unsqueeze(1)[0][0]).cpu().numpy()
     binary_mask = (cv2.resize(mask, (frame.shape[1], frame.shape[0])) > 0.5).astype(np.uint8) * 255
     return binary_mask
+
+class MedicineBottleRecorder:
+    def __init__(self):
+        self.index = 0
+        if not os.path.exists(MEDICINE_IMAGES_DIR) or not os.path.isdir(MEDICINE_IMAGES_DIR):
+            os.mkdir(MEDICINE_IMAGES_DIR)
+
+    def save_next(self, frame):
+        print(f"Writing medicine image {self.index}")
+        cv2.imwrite(f'{MEDICINE_IMAGES_DIR}/med_bottle{self.index + 1}.jpg', frame)
+        self.index += 1

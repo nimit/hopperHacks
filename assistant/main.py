@@ -2,37 +2,39 @@ import time
 import cv2
 import numpy as np
 import sys
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-
-# file imports
 from utils import *
 from whisper import get_target_object
 from path_finder import next_instruction
 import time
-from constants import STRINGS
+from constants import *
+import warnings
+from ocr import get_med_name
 
-device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
-RECORD_DURATION = 5
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def start_find():
     depth_colored = None
+    medicine_bottle_recorder = None
     speak(STRINGS["introduction"])
-    loc_data, lang = get_target_object(record_duration=RECORD_DURATION)
+    loc_data= get_target_object()
+    speaker = LocalizedSpeaker(loc_data)
     if loc_data and loc_data.object:
+        loc_data.instructions = {**loc_data.instructions, **PIRATE_STRINGS_EN}
         print("Object to detect:", loc_data.object)
+        if loc_data.object == "medicine":
+            loc_data.object = "bottle"
+            medicine_bottle_recorder = MedicineBottleRecorder()
     else:
         print("No object found in the transcription.")
-        speak(loc_data.get("transcript_error"), lang)
+        speaker.speak("transcript_error")
         exit(1)
     target_obj = loc_data.object
-    print("User language is", lang)
-    speak(loc_data.get("transcript_success"), lang)
+    print("User language is", loc_data.lang)
+    speaker.speak("transcript_success")
     
     AREA_THRESHOLD = 2.25
     DEPTH_THRESHOLD = 30
     TIME_SPEAK_INTERVAL = 0.75
-    FRAMES_PER_SECOND = 2
 
     DEPTH_ADJUST_COUNTER = 1
 
@@ -94,7 +96,7 @@ def start_find():
 
             data.append((target_obj, x, y, x+w, y+h, average_depth))
         else:
-            speak(loc_data.get("object_not_found"), lang)
+            speaker.speak("object_not_found")
             time.sleep(1.5)
             continue
 
@@ -102,7 +104,6 @@ def start_find():
         print("OBSTACLES", obstacles)
 
         for obstacle_obj in obstacles:
-            # print("Getting obstacle mask for:", obsta)
             obstacle_mask = get_object_mask(frame, prompt=obstacle_obj)
             obstacle_contours, _ = cv2.findContours(obstacle_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -112,7 +113,6 @@ def start_find():
                 obstacle_depth_values = depth_array[y:y+h, x:x+w]
                 obstacle_average_depth = np.mean(obstacle_depth_values)
 
-                # obstacle_color = (random(), random(), random()) * 255
                 obstacle_color = (0, 0, 0)
                 cv2.rectangle(depth_colored, (x, y), (x + w, y + h), obstacle_color, 2)
                 cv2.putText(depth_colored, f"{obstacle_obj}: Avg Depth {obstacle_average_depth:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, obstacle_color, 1)
@@ -139,7 +139,7 @@ def start_find():
             initial_area[target_obj] = area
         else:
             if area >= AREA_THRESHOLD * initial_area[target_obj] and average_depth >= initial_depth[target_obj] + DEPTH_THRESHOLD and location=="middle of screen":
-                speak(loc_data.get("reached_object"), lang)
+                speaker.speak("reached_object")
                 print(f"At the {target_obj}.")
                 break
         
@@ -147,11 +147,23 @@ def start_find():
         start_time = time.time()
 
         if(interval_time > TIME_SPEAK_INTERVAL):
-            speak(move, lang)
+            speak(move, loc_data.lang)
             time.sleep(0.5)
             if (bool_et): time.sleep(0.5)
             interval_time = 0
 
+    if medicine_bottle_recorder:
+        time.sleep(1)
+        speaker.speak("pick_up_medicine_bottle")
+        time.sleep(1)
+        medicine_bottle_recorder.found_bottle = True
+        while medicine_bottle_recorder.index < 3:
+            _, frame = cap.read()
+            medicine_bottle_recorder.save_next(frame)
+            speaker.speak("rotate_bottle_in_hands")
+            time.sleep(1)
+        med_indent = get_med_name(loc_data.lang)
+        speak(med_indent)
 
     cap.release()
     cv2.destroyAllWindows()
@@ -159,9 +171,17 @@ def start_find():
 
 if __name__ == "__main__":
     try:
-        time.sleep(10)
-        start_find()
+        while True:
+            x = input("Start?")
+            if x == '0' or (len(x) > 0 and x[0] == 'n'):
+                break
+            start_find()
+
     except Exception as err:
-        if os.path.exists("say.mp3"):
-            os.remove("say.mp3")
+        print("Exception occurred in the app:", err)
         raise err
+    finally:
+        if os.path.exists(AUDIO_PATH):
+            os.remove(AUDIO_PATH)
+        for img_path in os.listdir(MEDICINE_IMAGES_DIR):
+            os.remove(f'{MEDICINE_IMAGES_DIR}{img_path}')

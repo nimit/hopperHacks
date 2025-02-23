@@ -6,12 +6,51 @@ import { useState } from "react"
 import Image from "next/image"
 import { Upload, Check, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+
+function cleanGeminiResponse(response) {
+  // Regular expression to match the JSON format
+  const jsonPattern = /```json\s*\{[^]*\}\s*```/g;
+
+  // Check if the response contains the JSON block
+  if (jsonPattern.test(response)) {
+      // Extract the content between the brackets
+      const matches = response.match(/\{([^]*?)\}/);
+      // console.log("In cleaned Res: matches" , matches);
+      // console.log("In cleaned Res: matches[1]", matches[0]);
+      if (matches && matches[0]) {
+          // Parse the JSON string and return the medicines array
+          // const jsonResponse = JSON.parse(matches[0]);
+          return matches[0]; // Return an empty array if medicines are not found
+      }
+      return {
+        "medicines": null
+      }
+  }
+  else{
+    return response;
+  }
+}
+
 
 export default function AddPrescription() {
   const [photo, setPhoto] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [medicines, setMedicines] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+
+
+    // Converts File object to Base64
+    const fileToBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,11 +63,72 @@ export default function AddPrescription() {
     setError(null)
 
     // Simulating image processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Mock medicines (replace with actual image processing logic)
-    setMedicines(["Pirate's Pain Potion", "Sea Sickness Syrup", "Scurvy Stopper"])
-    setIsLoading(false)
+
+    // // Mock medicines (replace with actual image processing logic)
+    // setMedicines(["Pirate's Pain Potion", "Sea Sickness Syrup", "Scurvy Stopper"])
+    // setIsLoading(false)
+
+    try {
+      const base64Image = await fileToBase64(photo);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+      const prompt = `
+      You are an advanced AI model specializing in medical 
+            text extraction. Your task is to analyze a given image 
+            and determine whether it is a valid medical prescription. 
+            If the image contains a prescription, extract only the 
+            names of the medicines mentioned in the document and 
+            return them in a structured format as follows:
+            
+            {
+              "medicines": ["Medicine1", "Medicine2", "Medicine3"]
+            }
+            If the Medicine names contains the type of medication it is, also include that in the response in the medicine name itself.
+            An example of this would be "Moov Pain relief spray" or "multi vitamin tablets".
+            If the image does not contain a prescription or if you 
+            are unable to identify any medicine names, return the 
+            following response:
+
+            {
+              "medicines": null
+            }
+
+            Do not include any additional text, dosage instructions, 
+            or doctor/patient details—only extract the medicine names. 
+            Maintain accuracy by ensuring that only valid medicine names 
+            are included. If the document contains unrelated text, 
+            receipts, or any other type of document, classify it as 
+            non-prescription and return null. Don't write '''json ''' or anything like that.
+      `
+
+
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Image.split(",")[1], // Remove the `data:image/jpeg;base64,` prefix
+            mimeType: photo.type,
+          },
+        },
+      ];
+
+      const generatedContent = await model.generateContent([prompt, ...imageParts]);
+      const responseText = generatedContent.response.text();
+      // console.log("Response Text : " , responseText);
+      const cleanedResponse = cleanGeminiResponse(responseText);
+      // console.log("Cleaned Response : " , cleanedResponse);
+      console.log(JSON.parse(cleanedResponse));
+
+      // Assuming responseText contains a JSON array like '["Medicine A", "Medicine B"]'
+      setMedicines(JSON.parse(cleanedResponse)['medicines']);
+    } catch (err) {
+      console.error("Error processing image:", err);
+      setError("Arrr! Somethin' went wrong while decoding the scroll.");
+    }
+
+    setIsLoading(false);
+  
   }
 
   return (
@@ -75,7 +175,7 @@ export default function AddPrescription() {
 
         {isLoading && (
           <div className="text-center">
-            <Image src="/spinning-compass.gif" alt="Loading" width={64} height={64} className="mx-auto" />
+            {/* <Image src="/spinning-compass.gif" alt="Loading" width={64} height={64} className="mx-auto" /> */}
             <p className="text-brown mt-2">Decoding the prescription scroll...</p>
           </div>
         )}

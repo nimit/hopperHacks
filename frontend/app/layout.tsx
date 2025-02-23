@@ -27,10 +27,12 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-parchment min-h-screen flex flex-col`}
       >
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-        <VoiceCommandButton />
+        <UserProvider>
+          <Navbar />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          {/* <VoiceCommandButton /> */}
+        </UserProvider>
       </body>
     </html>
   );

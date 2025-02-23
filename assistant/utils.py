@@ -9,7 +9,7 @@ import os
 import logging
 from gtts import gTTS
 from playsound import playsound
-from constants import MEDICINE_IMAGES_DIR, AUDIO_PATH
+from constants import *
 from localized_object_extractor import LocalizedData
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
@@ -21,7 +21,7 @@ yolo_model = YOLO('yolo12n.pt')
 
 def speak(text, lang="en"):
     print("Will speak:", text)
-    tts = gTTS(text=text, lang=lang)
+    tts = gTTS(text=text, lang=lang, tld='co.uk')
     path = AUDIO_PATH
     if os.path.exists(path):
         os.remove(path)
@@ -141,11 +141,11 @@ def run_pipeline(frame):
     composite_frame = np.vstack((top_row, bottom_row))
     return composite_frame
 
-def initialize_video_writer(save_video=False, output_dir="visualization_output", fps=6, resolution=(1280, 960)):
-    if save_video:
-        os.makedirs(output_dir, exist_ok=True)
+def initialize_video_writer(video_index=-1, fps=6, resolution=(1280, 960)):
+    if video_index >= 0:
+        os.makedirs(VIDEO_DIR, exist_ok=True)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        return cv2.VideoWriter(f"{output_dir}/output.mp4", fourcc, fps, resolution)
+        return cv2.VideoWriter(f"{VIDEO_DIR}output{video_index}.mp4", fourcc, fps, resolution)
     return None
 
 def get_object_mask(frame, prompt):
@@ -160,8 +160,7 @@ def get_object_mask(frame, prompt):
 class MedicineBottleRecorder:
     def __init__(self):
         self.index = 0
-        if not os.path.exists(MEDICINE_IMAGES_DIR) or not os.path.isdir(MEDICINE_IMAGES_DIR):
-            os.mkdir(MEDICINE_IMAGES_DIR)
+        os.makedirs(MEDICINE_IMAGES_DIR, exist_ok=True)
 
     def save_next(self, frame):
         print(f"Writing medicine image {self.index}")

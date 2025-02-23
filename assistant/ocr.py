@@ -7,7 +7,7 @@ from utils import speak
 
 dir_path = MEDICINE_IMAGES_DIR
 
-def get_med_name(lang, user_medicines=["Vitamin C", "Multi vitamins"]):
+def get_med_name(lang, user_medicines=["Vitamin C", "Multi vitamin tablets", "Moov Pain Relief Spray"]):
 
     images = []
     for img_path in os.listdir(dir_path):

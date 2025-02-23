@@ -1,11 +1,12 @@
 AUDIO_PATH = "say.mp3"
 MEDICINE_IMAGES_DIR = "medicine-images/"
+VIDEO_DIR = "videos/"
 
 STRINGS = {
     # First 2 will always be in English
     #*
-    "introduction": ". Ahoy! How may I be o' service to ye?",
-    "wait_while_load": "Hold yer course while we be settin' up SpotiFind for ye. Thank ye for yer patience, matey.",
+    "introduction": ". Ahoy! How may I be ouf service to ye?",
+    "wait_while_load": "Hold yourr course while we be setting up SpotiFind for ye. Thank ye for your patience, matey.",
     #*
     "transcript_error": "Sorry, could not figure out what you wanted to find.",
     "transcript_success": "Perfect! Let's go find your '{{object}}'.",
@@ -23,17 +24,17 @@ STRINGS = {
 }
 
 PIRATE_STRINGS_EN = {
-    "transcript_error": "Shiver me timbers, could not make head nor tail o' what ye be seekin'.",
-    "transcript_success": "Avast! We'll be findin' yer '{{object}}', aye?",
-    "object_not_found": "The '{{object}}' be nowhere in sight. Best be movin' about, ye landlubber!",
-    "reached_object": "Ye've reached the '{{object}}'. Now, use yer hands to get a feel o' yer surroundings, slowly now!",
+    "transcript_error": "Shiver me timbers, could not make head nor tail of what ye be seekin'.",
+    "transcript_success": "Yeahh! We'll be findin' yourr '{{object}}', aye?",
+    "object_not_found": "The '{{object}}' be nowhere in sight. Best be movin' about!",
+    "reached_object": "Ye've reached the '{{object}}'. Now, use your hands to get a feel of your surroundings, slowly now!",
     "move_left_obstacle": "The '{{object}}' be straight ahead! Turn to port and sail onward.",
     "move_right_obstacle": "The '{{object}}' be straight ahead! Turn to starboard and sail onward.",
-    "move_forward": "Set sail and move forward, ye scallywag!",
-    "move_left": "Turn to port, ye bilge rat!",
-    "move_right": "Turn to starboard, ye swab!",
-    "move_back": "Lost the '{{object}}', we have. Best be backin' up, ye scurvy dog!",
-    "pick_up_medicine_bottle": "Seize the medicine bottle, ye salty sea dog!",
+    "move_forward": "Set sail and move forward!",
+    "move_left": "Turn to port",
+    "move_right": "Turn to starboard!",
+    "move_back": "Lost the '{{object}}', we have. Best be backin' up!",
+    "pick_up_medicine_bottle": "Seize the medicine bottle!",
     "rotate_bottle_in_hands": "Spin the bottle in yer grasp, aye!"
 }
 

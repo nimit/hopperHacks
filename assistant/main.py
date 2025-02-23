@@ -12,7 +12,7 @@ from ocr import get_med_name
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-def start_find():
+def start_find(video_writer):
     depth_colored = None
     medicine_bottle_recorder = None
     speak(STRINGS["introduction"])
@@ -33,10 +33,8 @@ def start_find():
     speaker.speak("transcript_success")
     
     AREA_THRESHOLD = 2.25
-    DEPTH_THRESHOLD = 30
+    DEPTH_THRESHOLD = 23
     TIME_SPEAK_INTERVAL = 0.75
-
-    DEPTH_ADJUST_COUNTER = 1
 
     cap = cv2.VideoCapture(1)
     if not cap.isOpened():
@@ -58,9 +56,6 @@ def start_find():
         if not ret:
             print("Error: Could not read frame.")
             break
-        if DEPTH_ADJUST_COUNTER < 1:
-        #     speak(f"The {target_obj} has been found!")
-            DEPTH_ADJUST_COUNTER = 1
 
         frame = cv2.resize(frame, (640, 480))
         combined_mask = np.zeros_like(frame)
@@ -98,6 +93,14 @@ def start_find():
         else:
             speaker.speak("object_not_found")
             time.sleep(1.5)
+            try:
+                top_row = np.hstack((frame, frame))
+                bottom_row = np.hstack((frame, frame))
+                combined_display = np.vstack((top_row, bottom_row))
+                video_writer.write(combined_display)
+                print("[no err] FRAME WRITE", combined_display.shape)
+            except Exception as err:
+                print("FRAME WRITE", err)
             continue
 
         obstacles = list(filter(lambda x: x != target_obj, objects))
@@ -128,6 +131,19 @@ def start_find():
             bottom_row = np.hstack((depth_colored, overlay))
             combined_display = np.vstack((top_row, bottom_row))
             cv2.imshow('Combined Display', combined_display)
+            if video_writer:
+                print("PROPER FRAME WRITE", combined_display.shape)
+                video_writer.write(combined_display)
+        else:
+            try:
+                top_row = np.hstack((frame, frame))
+                bottom_row = np.hstack((frame, frame))
+                combined_display = np.vstack((top_row, bottom_row))
+                video_writer.write(combined_display)
+                print("[no err] FRAME WRITE", combined_display.shape)
+            except Exception as err:
+                print("FRAME WRITE", err)
+
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -156,7 +172,6 @@ def start_find():
         time.sleep(1)
         speaker.speak("pick_up_medicine_bottle")
         time.sleep(1)
-        medicine_bottle_recorder.found_bottle = True
         while medicine_bottle_recorder.index < 3:
             _, frame = cap.read()
             medicine_bottle_recorder.save_next(frame)
@@ -165,23 +180,40 @@ def start_find():
         med_indent = get_med_name(loc_data.lang)
         speak(med_indent)
 
+    if video_writer:
+        video_writer.release()
     cap.release()
     cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
+    video_index = 0
+    video_writer = None
     try:
+        if os.path.isdir(VIDEO_DIR):
+            for vid_path in os.listdir(VIDEO_DIR):
+                os.remove(f'{VIDEO_DIR}{vid_path}')
+
         while True:
             x = input("Start?")
             if x == '0' or (len(x) > 0 and x[0] == 'n'):
                 break
-            start_find()
+            video_writer = initialize_video_writer(video_index)
+            time.sleep(3)
+            start_find(video_writer)
+            video_index += 1
+            video_writer.release()
 
     except Exception as err:
         print("Exception occurred in the app:", err)
         raise err
     finally:
+        if video_writer:
+            video_writer.release()
+
         if os.path.exists(AUDIO_PATH):
             os.remove(AUDIO_PATH)
-        for img_path in os.listdir(MEDICINE_IMAGES_DIR):
-            os.remove(f'{MEDICINE_IMAGES_DIR}{img_path}')
+        
+        if os.path.isdir(MEDICINE_IMAGES_DIR):
+            for img_path in os.listdir(MEDICINE_IMAGES_DIR):
+                os.remove(f'{MEDICINE_IMAGES_DIR}{img_path}')

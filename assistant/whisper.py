@@ -3,9 +3,9 @@ import torch
 from transformers import pipeline
 import warnings
 from langdetect import detect_langs
-from localized_object_extractor import extract_object, LocalizedData
+from localized_object_extractor import extract_object
 from utils import speak
-from constants import STRINGS, CLASSES
+from constants import STRINGS
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 whisper = pipeline("automatic-speech-recognition", model="openai/whisper-medium", torch_dtype=torch.float32, device="cpu", use_fast=True)
@@ -35,7 +35,7 @@ def transcribe_audio(audio_data):
 
 def get_target_object():
     #* TEST
-    return LocalizedData("en", "medicine", CLASSES, STRINGS)
+    # return LocalizedData("en", "medicine", CLASSES, STRINGS)
 
     audio_data = record_audio(RECORD_DURATION)
     speak(STRINGS['wait_while_load'])

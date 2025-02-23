@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Mic, MicOff, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 declare global {
   interface Window {
@@ -11,6 +12,7 @@ declare global {
 }
 
 export default function VoiceCommandButton() {
+  const router = useRouter();
   const [isRecording, setIsRecording] = useState(false)
   const [transcript, setTranscript] = useState("")
   const [isExpanded, setIsExpanded] = useState(false)

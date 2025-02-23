@@ -3,60 +3,156 @@
 import type React from "react"
 
 import { useState } from "react"
+import { AlertTriangle, Info } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function AddObstacle() {
-  const [email, setEmail] = useState("")
+  const [obstacleType, setObstacleType] = useState("")
   const [description, setDescription] = useState("")
-  const [status, setStatus] = useState("Active")
+  const [location, setLocation] = useState({ lat: 0, lng: 0 })
   const [photo, setPhoto] = useState<File | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission logic here
-    console.log("Obstacle added:", { email, description, status, photo })
+    if (!obstacleType || !description || (location.lat === 0 && location.lng === 0)) {
+      setError("Ye need to fill all the required fields, ye scurvy dog!")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    // Simulating API call
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    setIsLoading(false)
+    setIsSuccess(true)
+    // Reset form
+    setObstacleType("")
+    setDescription("")
+    setLocation({ lat: 0, lng: 0 })
+    setPhoto(null)
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: "url('/pirate-map-bg.jpg')" }}
-    >
-      <div className="bg-wood p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-3xl font-bold text-center text-amber-900 mb-6 pirate-font">Add Obstacle</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-parchment text-amber-900 placeholder-amber-700"
-            required
-          />
-          <textarea
-            placeholder="Obstacle description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 rounded bg-parchment text-amber-900 placeholder-amber-700"
-            required
-          />
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 rounded bg-parchment text-amber-900"
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
-            className="w-full p-2 rounded bg-parchment text-amber-900"
-          />
-          <button type="submit" className="w-full btn-pirate">
-            Add Obstacle
-          </button>
-        </form>
+    <div className="min-h-screen bg-parchment py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold text-brown mb-8 pirate-font text-center">Report an Obstacle</h1>
+
+        <div className="bg-parchment-light p-8 rounded-lg shadow-lg mb-8">
+          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">Mark Yer Danger on the Map</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="obstacleType" className="block text-brown font-bold mb-2">
+                Type of Obstacle
+              </label>
+              <select
+                id="obstacleType"
+                value={obstacleType}
+                onChange={(e) => setObstacleType(e.target.value)}
+                className="w-full p-2 rounded bg-parchment text-brown border border-brown"
+                required
+              >
+                <option value="">Select an obstacle type</option>
+                <option value="reef">Treacherous Reef</option>
+                <option value="whirlpool">Whirlpool</option>
+                <option value="seamonster">Sea Monster</option>
+                <option value="pirates">Rival Pirates</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-brown font-bold mb-2">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-2 rounded bg-parchment text-brown border border-brown"
+                rows={4}
+                required
+                placeholder="Describe the danger ye've encountered..."
+              ></textarea>
+            </div>
+            <div>
+              <label htmlFor="location" className="block text-brown font-bold mb-2">
+                Location
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="number"
+                  placeholder="Latitude"
+                  value={location.lat || ""}
+                  onChange={(e) => setLocation((prev) => ({ ...prev, lat: Number.parseFloat(e.target.value) }))}
+                  className="w-1/2 p-2 rounded bg-parchment text-brown border border-brown"
+                  step="any"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Longitude"
+                  value={location.lng || ""}
+                  onChange={(e) => setLocation((prev) => ({ ...prev, lng: Number.parseFloat(e.target.value) }))}
+                  className="w-1/2 p-2 rounded bg-parchment text-brown border border-brown"
+                  step="any"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="photo" className="block text-brown font-bold mb-2">
+                Photo (optional)
+              </label>
+              <input
+                type="file"
+                id="photo"
+                accept="image/*"
+                onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
+                className="w-full p-2 rounded bg-parchment text-brown border border-brown"
+              />
+            </div>
+            <Button type="submit" className="w-full btn-pirate" disabled={isLoading}>
+              {isLoading ? "Marking the map..." : "Report Obstacle"}
+            </Button>
+          </form>
+          {error && (
+            <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+              <AlertTriangle className="inline mr-2" />
+              {error}
+            </div>
+          )}
+          {isSuccess && (
+            <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+              <Info className="inline mr-2" />
+              Yer obstacle has been successfully reported, matey!
+            </div>
+          )}
+        </div>
+
+        <div className="bg-brown-dark p-6 rounded-lg shadow-lg mb-8">
+          <h3 className="text-3xl font-bold text-parchment mb-4 pirate-font">Map Preview</h3>
+          <div className="bg-parchment h-64 rounded-lg flex items-center justify-center">
+            <p className="text-brown">Map preview will be shown here</p>
+          </div>
+        </div>
+
+        <div className="bg-parchment-light p-6 rounded-lg shadow-lg">
+          <h2 className="text-3xl font-bold text-brown mb-4 pirate-font">Why Report Obstacles?</h2>
+          <div className="space-y-4 text-brown-dark">
+            <p>Reporting obstacles be crucial for the safety of all seafarers in our community. Here's why:</p>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Ye help keep yer fellow pirates safe from harm</li>
+              <li>Ye contribute to our ever-growing map of dangers</li>
+              <li>Ye earn respect and trust among the pirate community</li>
+              <li>Ye might save a life or a ship from peril</li>
+            </ul>
+            <p>Remember, a informed pirate be a safe pirate. Share yer knowledge and keep our waters safer for all!</p>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -187,7 +187,7 @@ def start_find(video_writer):
 
 
 if __name__ == "__main__":
-    video_index = 0
+    video_index = -1
     video_writer = None
     try:
         if os.path.isdir(VIDEO_DIR):

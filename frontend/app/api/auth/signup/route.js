@@ -7,6 +7,7 @@ export async function POST(request) {
     console.log("Received signup request:", { name, email });
 
     const client = await clientPromise;
+    console.log("Connected to client")
     const db = client.db('your-database-name'); // Replace with your database name
 
     // Check if the user already exists
